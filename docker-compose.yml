@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  guneleme:
+    image: missingno/guneleme
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    command: python3 manage.py runserver 0.0.0.0:8000 --noreload
+    environment:
+      - COUPON_KEY=defaultkey
+    restart: always
+
+  qqbot:
+    image: missingno/qqbot
+    volumes:
+      - ./qqbot:/app
+      - ./qqbot/ss.json:/etc/ss.json
+    working_dir: /app
+    command: python run.py
+    environment:
+      - COUPON_KEY=defaultkey
+    restart: always
+

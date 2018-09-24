@@ -1,0 +1,175 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static %}
+
+{% block after_field_sets %}
+<link rel="stylesheet" href="{% static 'css/modal.css' %}" type="text/css">
+<script type="text/javascript">
+    django.jQuery("#id_password").attr("type", "password");
+</script>
+<div class="module aligned">
+    <div class="form-row">
+        <label class="required" for="id_start">{% trans 'Login to eleme' %}: </label>
+        <input type="button" value="{% trans 'Login' %}" name="_start" id="id_start">
+        <span class="hidden" style="margin-left: 10px;" id="id_span_ind">{% trans 'Finished in <span id="id_span_time"></span>s.' %}</span>
+    </div>
+    <div class="form-row">
+        <label class="required" for="id_codes">{% trans 'Code' %}: </label>
+        <input maxlength="6" oninput="value=value.replace(/[^\d]/g,'')" required class="vTextField" id="id_codes" type="text" name="_codes">
+        <input disabled type="button" style="margin-left: 10px;" value="{% trans 'Submit' %}" name="_submit" id="id_submit">
+        <span class="hidden" style="margin-left: 10px;" id="id_span_code_ind">{% trans 'Success' %}</span>
+    </div>
+</div>
+<div id="modal" class="modal">
+	<div class="modal-content">
+		<header class="modal-header">
+			<h4>{% trans 'Captcha' %}</h4>
+		</header>
+		<div class="modal-body">
+			<img id="captcha_img" src="">
+            <br/>
+            <label for="captcha">{% trans 'Captcha' %}: </label>
+            <input maxlength="4" id="captcha" type="text">
+		</div>
+		<footer class="modal-footer">
+			<input type="button" value="{% trans 'Confirm' %}" id="sure">
+		</footer>
+	</div>
+</div>
+<script type="text/javascript">
+    var button = django.jQuery("#id_start");
+    var span_ind = django.jQuery("#id_span_ind");
+
+    var sub_button = django.jQuery("#id_submit");
+    var span_code_ind = django.jQuery("#id_span_code_ind");
+
+    button.click(function () {
+        var time = 150;
+        span_ind.html('{% trans 'Finished in <span id="id_span_time"></span>s.' %}');
+        var span_time = django.jQuery("#id_span_time");
+        button.attr("disabled", true);
+        span_time.html(time--);
+        span_ind.removeClass("hidden");
+        var interval = setInterval(function(){
+            span_time.html(time--);
+            if(time < 0){
+                clearInterval(interval);
+            }
+        }, 1000);
+        django.jQuery.ajax({
+            url: "{% url 'account_login' %}",
+            type: "POST",
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: "json",
+            data: {
+                qq: django.jQuery("#id_qq").val(),
+                password: django.jQuery("#id_password").val(),
+                phone: django.jQuery("#id_phone").val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            timeout: time * 1000,
+            success: function(data){
+                if (data["code"] === 0){
+                    span_ind.html("{% trans 'Login success. Waiting for codes.' %}");
+                    sub_button.removeAttr("disabled");
+                    django.jQuery("#id_account").attr("disabled", true);
+                    django.jQuery("#id_password").attr("disabled", true);
+                    if (data["obj"] != null){
+                        var modal = document.getElementById('modal');
+                        modal.style.display = "block";
+                        var captcha_img = django.jQuery("#captcha_img");
+                        captcha_img.attr('src', data['obj']);
+                    }
+                } else if (data["code"] === 1){
+                    span_ind.html("{% trans 'Login failed, check password.' %}");
+                    button.removeAttr("disabled");
+                } else {
+                    span_ind.html("{% trans 'Error occurred!' %}");
+                    button.removeAttr("disabled");
+                }
+            },
+            complete: function(xhr, status){
+                clearInterval(interval);
+                if(status === 'timeout' || status === 'error'){
+                    span_ind.html("{% trans 'Error occurred!' %}");
+                    button.removeAttr("disabled");
+                }
+        　　}
+        });
+    });
+
+    sub_button.click(function () {
+        span_code_ind.addClass("hidden");
+        sub_button.attr("disabled", true);
+        django.jQuery.ajax({
+            url: "{% url 'account_codes' %}",
+            type: "POST",
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: "json",
+            data: {
+                qq: django.jQuery("#id_qq").val(),
+                code: django.jQuery("#id_codes").val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(data){
+                if (data["code"] === 0){
+                    var jo = JSON.parse(data["obj"]);
+                    django.jQuery("#id_sign").val(jo["sign"]);
+                    django.jQuery("#id_openid").val(jo["openid"]);
+                    django.jQuery("#id_cookies").val(jo["cookies"]);
+                    span_code_ind.html("{% trans 'OK. Please SAVE.' %}");
+                } else if (data["code"] === 1){
+                    span_code_ind.html("{% trans 'Auth failed, check codes.' %}");
+                    sub_button.removeAttr("disabled");
+                } else {
+                    span_code_ind.html("{% trans 'Error occurred!' %}");
+                    sub_button.removeAttr("disabled");
+                }
+            },
+            complete: function(xhr, status){
+                span_code_ind.removeClass("hidden");
+                if(status === 'timeout' || status === 'error'){
+                    span_code_ind.html("{% trans 'Error occurred!' %}");
+                    sub_button.removeAttr("disabled");
+                }
+        　　}
+        });
+    });
+
+    var sure_btn = django.jQuery("#sure");
+    sure_btn.click(function () {
+        django.jQuery.ajax({
+            url: "{% url 'account_captcha' %}",
+            type: "POST",
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: "json",
+            data: {
+                qq: django.jQuery("#id_qq").val(),
+                captcha: django.jQuery("#captcha").val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(data){
+                var modal = document.getElementById('modal');
+                var captcha_img = django.jQuery("#captcha_img");
+                if (data["code"] === 0){
+                    modal.style.display = "none";
+                } else if (data["code"] === 1){
+                    alert("{% trans 'Timeout, login again.' %}");
+                    modal.style.display = "none";
+                } else if (data["code"] === 2){
+                    alert("{% trans 'Captcha error.' %}");
+                    captcha_img.attr('src', data['obj']);
+                } else {
+                    alert("{% trans 'Error occurred!' %}");
+                    modal.style.display = "none";
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

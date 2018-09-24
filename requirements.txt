@@ -1,0 +1,7 @@
+Django
+requests
+apscheduler
+scrapy
+scrapy-djangoitem
+selenium
+opencv-python
