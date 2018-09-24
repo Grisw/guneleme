@@ -1,6 +1,23 @@
 import requests
 import re
 import os
+import django
+import sys
+from django.db import IntegrityError
+import logging
+
+logger = logging.getLogger('default')
+DCoupon = None
+
+
+def onInit(bot):
+    sys.path.append('/app')
+    settings_path = 'guneleme.settings'
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_path)
+    django.setup()
+    from app.models import Coupon
+    global DCoupon
+    DCoupon = Coupon
 
 
 def onQQMessage(bot, contact, member, content):
@@ -22,11 +39,11 @@ def onQQMessage(bot, contact, member, content):
     else:
         return
 
-    requests.post('http://guneleme:8000/coupon/', json={
-        'lucky_number': lucky_number,
-        'sn': sn,
-        'key': os.getenv('COUPON_KEY', 'defaultkey')
-    })
+    logger.info(f'GET Coupon: {content}')
+    try:
+        DCoupon.objects.create(sn=sn, lucky_number=lucky_number)
+    except IntegrityError:
+        pass
 
 
 def resume_url_cn(url):

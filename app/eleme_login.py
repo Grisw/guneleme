@@ -71,7 +71,7 @@ def start_login(qq, password, phone):
             break
         except TimeoutException:
             retry_count += 1
-            if retry_count >= 3:
+            if retry_count >= 5:
                 logger.info('"{qq}" login failed.'.format(qq=qq))
                 return False, None
     logger.info('"{qq}" login success.'.format(qq=qq))

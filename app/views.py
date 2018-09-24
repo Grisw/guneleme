@@ -1,10 +1,7 @@
-from django.db import IntegrityError
 from django.http import JsonResponse
-from app.models import Coupon
 from django.contrib.admin.views.decorators import staff_member_required
 from app.eleme_login import start_login, submit_code, input_captcha_img
 import json
-import os
 
 
 @staff_member_required
@@ -63,20 +60,3 @@ def code(request):
         return JsonResponse({'code': 0, 'msg': 'Success.', 'obj': json.dumps(result)})
     else:
         return JsonResponse({'code': 1, 'msg': 'Code error or timeout?'})
-
-
-def coupon(request):
-    if request.method != 'POST':
-        return JsonResponse({'status': -1, 'msg': 'Route not found.'})
-
-    sn = request.POST.get('sn')
-    lucky_number = request.POST.get('lucky_number')
-    key = request.POST.get('key')
-    if not sn or not lucky_number or not key or key != os.getenv('COUPON_KEY', 'defaultkey'):
-        return JsonResponse({'code': -2, 'msg': 'Params error.'})
-
-    try:
-        Coupon.objects.create(sn=sn, lucky_number=lucky_number)
-    except IntegrityError:
-        return JsonResponse({'status': 1, 'msg': 'Coupon already exists.'})
-    return JsonResponse({'status': 0, 'msg': 'Success.'})

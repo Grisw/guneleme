@@ -22,5 +22,4 @@ urlpatterns = [
     path('admin/app/account/codes', views.code, name='account_codes'),
     path('admin/app/account/captcha', views.input_captcha, name='account_captcha'),
     path('admin/', admin.site.urls),
-    path('coupon/', views.coupon),
 ]

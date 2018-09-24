@@ -1,3 +1,4 @@
 qqbot
 shadowsocks
 requests
+Django

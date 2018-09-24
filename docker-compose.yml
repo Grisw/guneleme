@@ -9,18 +9,14 @@ services:
     ports:
       - "8000:8000"
     command: python3 manage.py runserver 0.0.0.0:8000 --noreload
-    environment:
-      - COUPON_KEY=defaultkey
     restart: always
 
   qqbot:
     image: missingno/qqbot
     volumes:
-      - ./qqbot:/app
+      - .:/app
       - ./qqbot/ss.json:/etc/ss.json
-    working_dir: /app
+    working_dir: /app/qqbot
     command: python run.py
-    environment:
-      - COUPON_KEY=defaultkey
     restart: always
 

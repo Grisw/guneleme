@@ -17,7 +17,7 @@ class AppConfig(AppConfig):
         lambs = Account.objects.filter(is_lamb=True)
         if not lambs or len(lambs) == 0:
             return
-        luckys = Account.objects.filter(is_lamb=False).order_by('-last_lucky_time')[0]
+        luckys = Account.objects.filter(is_lamb=False).order_by('-last_lucky_time')
         if not luckys or len(luckys) == 0:
             return
         lucky = luckys[0]
@@ -44,7 +44,7 @@ class AppConfig(AppConfig):
                 coupon.current_count = len(jo['promotion_records'])
             else:
                 logger.info('sn: {sn}, remains: {remain}.'
-                            .format(sn=coupon.sn, remain=coupon.lucky_account - coupon.current_count))
+                            .format(sn=coupon.sn, remain=coupon.lucky_number - coupon.current_count))
             coupon.save()
 
     def get_coupon(self, account, coupon):
