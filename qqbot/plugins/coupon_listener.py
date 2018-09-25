@@ -27,17 +27,20 @@ def onQQMessage(bot, contact, member, content):
     if not content.startswith('https://h5.ele.me/hongbao/'):
         return
 
+    sn = re.search('sn=(\w{16})', content)
+    if sn:
+        sn = sn.group(1)
+    else:
+        return
+
     lucky_number = re.search('lucky_number=(\d+)', content)
     if lucky_number:
         lucky_number = lucky_number.group(1)
     else:
         return
 
-    sn = re.search('sn=(\w{16})', content)
-    if sn:
-        sn = sn.group(1)
-    else:
-        return
+    if lucky_number == 0:
+        lucky_number = resume_lucky_number(sn)
 
     logger.info(f'GET Coupon: {content}')
     try:
@@ -49,3 +52,8 @@ def onQQMessage(bot, contact, member, content):
 def resume_url_cn(url):
     r = requests.get(url, allow_redirects=False)
     return r.headers['Location']
+
+
+def resume_lucky_number(sn):
+    r = requests.get(f'https://h5.ele.me/restapi/marketing/themes/3113/group_sns/{sn}')
+    return r.json()['lucky_number']
