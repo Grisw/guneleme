@@ -18,7 +18,7 @@ class AppConfig(AppConfig):
         lambs = self.Account.objects.filter(is_lamb=True)
         if not lambs or len(lambs) == 0:
             return
-        luckys = self.Account.objects.filter(is_lamb=False).order_by('-last_lucky_time')
+        luckys = self.Account.objects.filter(is_lamb=False).order_by('last_lucky_time')
         if not luckys or len(luckys) == 0:
             return
         current_lucky = 0
