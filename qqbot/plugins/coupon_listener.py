@@ -5,6 +5,7 @@ import django
 import sys
 from django.db import IntegrityError
 import logging
+import datetime
 
 logger = logging.getLogger('default')
 DCoupon = None
@@ -44,7 +45,7 @@ def onQQMessage(bot, contact, member, content):
 
     logger.info(f'GET Coupon: {content}')
     try:
-        DCoupon.objects.create(sn=sn, lucky_number=lucky_number)
+        DCoupon.objects.create(sn=sn, lucky_number=lucky_number, time=datetime.datetime.now())
     except IntegrityError:
         pass
 
