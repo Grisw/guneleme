@@ -72,7 +72,6 @@ class AppConfig(AppConfig):
             coupon.save()
 
     def get_coupon(self, account, coupon):
-        logger.info('{{"method":"phone","group_sn":"{sn}","sign":"{sign}"}}'.format(sn=coupon.sn, sign=account.sign))
         r = requests.post(
             url='https://h5.ele.me/restapi/marketing/promotion/weixin/{openid}'.format(openid=account.openid),
             data='{{"method":"phone","group_sn":"{sn}","sign":"{sign}"}}'.format(sn=coupon.sn,

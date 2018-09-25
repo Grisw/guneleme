@@ -10,8 +10,8 @@ class AccountAdmin(admin.ModelAdmin):
 
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):
-    list_display = ('sn', 'remains_count', 'lucky_account', 'amount')
-    readonly_fields = ('amount', )
+    list_display = ('sn', 'lucky_account', 'amount', 'time', 'remains_count')
+    readonly_fields = ('amount', 'time')
 
     def remains_count(self, obj):
         return obj.lucky_number - obj.current_count
