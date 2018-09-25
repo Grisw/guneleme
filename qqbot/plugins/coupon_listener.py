@@ -39,7 +39,7 @@ def onQQMessage(bot, contact, member, content):
     else:
         return
 
-    if lucky_number == 0:
+    if lucky_number == '0':
         lucky_number = resume_lucky_number(sn)
 
     logger.info(f'GET Coupon: {content}')
