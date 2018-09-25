@@ -41,6 +41,21 @@ class AppConfig(AppConfig):
             if coupon.lucky_number - coupon.current_count == 1:
                 logger.info('Next max! sn: {sn}, lucky guy: {lucky}'.format(sn=coupon.sn, lucky=lucky.qq))
                 jo = self.get_coupon(lucky, coupon)
+
+                _current_lucky = current_lucky - 1
+                while 'is_lucky' not in jo and _current_lucky != current_lucky:
+                    lucky.last_lucky_time = datetime.date.today() + datetime.timedelta(days=1)
+                    lucky.save()
+                    logger.info('Full! lucky guy: {lucky}, last_lucky_time push to: {last_lucky_time}'
+                                .format(lucky=lucky.qq, last_lucky_time=lucky.last_lucky_time))
+                    lucky = luckys[current_lucky]
+                    current_lucky = (current_lucky + 1) % len(luckys)
+                    jo = self.get_coupon(lucky, coupon)
+                if 'is_lucky' not in jo:
+                    coupon.current_count = len(jo['promotion_records'])
+                    coupon.save()
+                    continue
+
                 if jo['is_lucky']:
                     lucky.last_lucky_time = datetime.datetime.now()
                     coupon.lucky_account = lucky
