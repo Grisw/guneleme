@@ -11,38 +11,42 @@ logger = logging.getLogger('default')
 
 class AppConfig(AppConfig):
     name = 'app'
+    Account = None
+    Coupon = None
 
     def test_coupons(self):
-        from app.models import Coupon, Account
-        lambs = Account.objects.filter(is_lamb=True)
+        lambs = self.Account.objects.filter(is_lamb=True)
         if not lambs or len(lambs) == 0:
             return
-        luckys = Account.objects.filter(is_lamb=False).order_by('-last_lucky_time')
+        luckys = self.Account.objects.filter(is_lamb=False).order_by('-last_lucky_time')
         if not luckys or len(luckys) == 0:
             return
-        lucky = luckys[0]
-        coupons = Coupon.objects.filter(lucky_number__gt=F('current_count'))
+        current_lucky = 0
+        coupons = self.Coupon.objects.filter(lucky_number__gt=F('current_count'))
         for coupon in coupons:
             if coupon.lucky_number - coupon.current_count == 1:
                 continue
             if not coupon.lamb_account:
                 coupon.lamb_account = random.choice(lambs)
+            if not coupon.lucky_account:
+                coupon.lucky_account = luckys[current_lucky]
+                current_lucky = (current_lucky + 1) % len(luckys)
             jo = self.get_coupon(coupon.lamb_account, coupon)
             if 'promotion_records' not in jo:
                 continue
             coupon.current_count = len(jo['promotion_records'])
             if coupon.lucky_number - coupon.current_count == 1:
-                logger.info('Next max! sn: {sn}, lucky guy: {lucky}'.format(sn=coupon.sn, lucky=lucky.openid))
-                jo = self.get_coupon(lucky, coupon)
+                logger.info('Next max! sn: {sn}, lucky guy: {lucky}'.format(sn=coupon.sn, lucky=coupon.lucky_account.openid))
+                jo = self.get_coupon(coupon.lucky_account, coupon)
                 if jo['is_lucky']:
-                    lucky.last_lucky_time = datetime.datetime.now()
-                    coupon.lucky_account = lucky
+                    coupon.lucky_account.last_lucky_time = datetime.datetime.now()
+                    coupon.lucky_account = coupon.lucky_account
                     coupon.amount = jo['promotion_records'][-1]['amount']
-                    lucky.save()
+                    coupon.lucky_account.save()
                     logger.info('Success! sn: {sn}, lucky guy: {lucky}, amount: {amount}'
-                                .format(sn=coupon.sn, lucky=lucky.openid, amount=coupon.amount))
+                                .format(sn=coupon.sn, lucky=coupon.lucky_account.qq, amount=coupon.amount))
                 else:
-                    logger.info('Failed! sn: {sn}'.format(sn=coupon.sn, lucky=lucky.openid, amount=coupon.amount))
+                    logger.info('Failed! sn: {sn}'.format(sn=coupon.sn, lucky=coupon.lucky_account.openid, amount=coupon.amount))
                 coupon.current_count = len(jo['promotion_records'])
             else:
                 logger.info('sn: {sn}, remains: {remain}.'
@@ -63,6 +67,9 @@ class AppConfig(AppConfig):
         return r.json()
 
     def ready(self):
+        from app.models import Coupon, Account
+        self.Coupon = Coupon
+        self.Account = Account
         scheduler = BackgroundScheduler()
         scheduler.add_job(self.test_coupons, 'interval', seconds=5)
         scheduler.start()
