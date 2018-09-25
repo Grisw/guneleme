@@ -7,10 +7,11 @@ class Account(models.Model):
     password = models.CharField(max_length=50, null=True, blank=True)
     phone = models.CharField(max_length=11)
     is_lamb = models.BooleanField()
-    openid = models.CharField(max_length=32, null=True)
-    sign = models.CharField(max_length=32, null=True)
-    cookies = models.TextField(null=True)
+    openid = models.CharField(max_length=32)
+    sign = models.CharField(max_length=32)
+    cookies = models.TextField()
     last_lucky_time = models.DateTimeField(default=datetime.datetime.now())
+    temp_lamb_until = models.DateTimeField(default=datetime.datetime.now())
 
 
 class Coupon(models.Model):
