@@ -22,7 +22,7 @@ class AppConfig(AppConfig):
         if not luckys or len(luckys) == 0:
             return
         current_lucky = 0
-        coupons = self.Coupon.objects.filter(lucky_number__gt=F('current_count'))
+        coupons = self.Coupon.objects.filter(lucky_number__gt=F('current_count'), time__gte=datetime.date.today() - datetime.timedelta(days=1))
         for coupon in coupons:
             if coupon.lucky_number - coupon.current_count == 1:
                 continue
