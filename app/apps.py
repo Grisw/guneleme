@@ -29,24 +29,27 @@ class AppConfig(AppConfig):
             if not coupon.lamb_account:
                 coupon.lamb_account = random.choice(lambs)
             if not coupon.lucky_account:
-                coupon.lucky_account = luckys[current_lucky]
+                lucky = luckys[current_lucky]
                 current_lucky = (current_lucky + 1) % len(luckys)
+            else:
+                lucky = coupon.lucky_account
+
             jo = self.get_coupon(coupon.lamb_account, coupon)
             if 'promotion_records' not in jo:
                 continue
             coupon.current_count = len(jo['promotion_records'])
             if coupon.lucky_number - coupon.current_count == 1:
-                logger.info('Next max! sn: {sn}, lucky guy: {lucky}'.format(sn=coupon.sn, lucky=coupon.lucky_account.openid))
-                jo = self.get_coupon(coupon.lucky_account, coupon)
+                logger.info('Next max! sn: {sn}, lucky guy: {lucky}'.format(sn=coupon.sn, lucky=lucky.qq))
+                jo = self.get_coupon(lucky, coupon)
                 if jo['is_lucky']:
-                    coupon.lucky_account.last_lucky_time = datetime.datetime.now()
-                    coupon.lucky_account = coupon.lucky_account
+                    lucky.last_lucky_time = datetime.datetime.now()
+                    coupon.lucky_account = lucky
                     coupon.amount = jo['promotion_records'][-1]['amount']
-                    coupon.lucky_account.save()
+                    lucky.save()
                     logger.info('Success! sn: {sn}, lucky guy: {lucky}, amount: {amount}'
-                                .format(sn=coupon.sn, lucky=coupon.lucky_account.qq, amount=coupon.amount))
+                                .format(sn=coupon.sn, lucky=lucky.qq, amount=coupon.amount))
                 else:
-                    logger.info('Failed! sn: {sn}'.format(sn=coupon.sn, lucky=coupon.lucky_account.openid, amount=coupon.amount))
+                    logger.info('Failed! sn: {sn}'.format(sn=coupon.sn, lucky=lucky.openid, amount=coupon.amount))
                 coupon.current_count = len(jo['promotion_records'])
             else:
                 logger.info('sn: {sn}, remains: {remain}.'
