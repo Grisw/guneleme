@@ -101,7 +101,7 @@ class AppConfig(AppConfig):
         return luckys.order_by('last_lucky_time')
 
     def get_coupons(self):
-        coupons = self.Coupon.objects.filter(lucky_number__gt=F('current_count'), time__gte=datetime.date.today() - datetime.timedelta(days=1))
+        coupons = self.Coupon.objects.filter(lucky_number__gt=F('current_count'), create_time__gte=datetime.date.today() - datetime.timedelta(days=1))
         if not coupons or len(coupons) == 0:
             return []
         return coupons
