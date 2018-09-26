@@ -88,7 +88,7 @@ class AppConfig(AppConfig):
                     logger.info('Failed! sn: {sn}'.format(sn=coupon.sn))
                 coupon.current_count = len(jo['promotion_records'])
             else:
-                logger.debug('sn: {sn}, remains: {remain}, interval: {interval}s.'.format(sn=coupon.sn, remain=coupon.lucky_number - coupon.current_count, interval=self.interval))
+                logger.debug('sn: {sn}, remains: {remain}.'.format(sn=coupon.sn, remain=coupon.lucky_number - coupon.current_count))
             coupon.save()
         if interval < self.MIN_INTERVAL:
             self.interval = self.MIN_INTERVAL
@@ -96,6 +96,7 @@ class AppConfig(AppConfig):
             self.interval = self.MAX_INTERVAL
         else:
             self.interval = interval
+        logger.debug('Interval: {interval}s.')
         Timer(self.interval, self.test_coupons).start()
 
     def get_lambs(self):
