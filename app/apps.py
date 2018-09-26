@@ -1,11 +1,10 @@
 from django.apps import AppConfig
 import requests
-from apscheduler.schedulers.background import BackgroundScheduler
 from django.db.models import F, Q
 import random
 import logging
 import datetime
-import threading
+from threading import Timer
 
 logger = logging.getLogger('default')
 
@@ -14,18 +13,17 @@ class AppConfig(AppConfig):
     name = 'app'
     Account = None
     Coupon = None
-    lock = threading.Lock()
+    interval = 5
 
     def test_coupons(self):
-        self.lock.acquire()
         # Get Available Lambs and Luckys.
         lambs = self.get_lambs()
         if not lambs:
-            self.lock.release()
+            Timer(self.interval, self.test_coupons).start()
             return
         luckys = self.get_luckys()
         if not luckys:
-            self.lock.release()
+            Timer(self.interval, self.test_coupons).start()
             return
         # Circular iteration, start from 0
         current_lucky = 0
@@ -39,7 +37,10 @@ class AppConfig(AppConfig):
             jo = self.pick_coupon(coupon.lamb_account, coupon)
             if 'promotion_records' not in jo:
                 # IP was ban, retry next time. No need to update coupon.lamb_account.
+                self.interval += 0.1
                 continue
+            else:
+                self.interval -= 0.1
 
             coupon.current_count = len(jo['promotion_records'])
             if coupon.lucky_number - coupon.current_count == 1:
@@ -84,9 +85,9 @@ class AppConfig(AppConfig):
                     logger.info('Failed! sn: {sn}'.format(sn=coupon.sn))
                 coupon.current_count = len(jo['promotion_records'])
             else:
-                logger.debug('sn: {sn}, remains: {remain}.'.format(sn=coupon.sn, remain=coupon.lucky_number - coupon.current_count))
+                logger.debug('sn: {sn}, remains: {remain}, interval: {interval}s.'.format(sn=coupon.sn, remain=coupon.lucky_number - coupon.current_count, interval=self.interval))
             coupon.save()
-        self.lock.release()
+        Timer(self.interval, self.test_coupons).start()
 
     def get_lambs(self):
         lambs = self.Account.objects.filter(Q(is_lamb=True) | Q(temp_lamb_until__gt=datetime.datetime.now()))
@@ -107,21 +108,22 @@ class AppConfig(AppConfig):
         return coupons
 
     def pick_coupon(self, account, coupon):
-        r = requests.post(
-            url='https://h5.ele.me/restapi/marketing/promotion/weixin/{openid}'.format(openid=account.openid),
-            data='{{"method":"phone","group_sn":"{sn}","sign":"{sign}"}}'.format(sn=coupon.sn,
-                                                                                 sign=account.sign),
-            headers={
-                'Cookie': account.cookies,
-                'Content-Type': 'text/plain',
-                'User-Agent': 'mozilla/5.0 (Linux; U; Android 5.1; zh-cn; OPPO R9tm Build/LMY47I) AppleWebKit/537.36 (KHTML, like Gecko)Version/4.0 Chrome/37.0.0.0 MQQBrowser/7.5 Mobile Safari/537.36'
-            })
-        return r.json()
+        try:
+            r = requests.post(
+                url='https://h5.ele.me/restapi/marketing/promotion/weixin/{openid}'.format(openid=account.openid),
+                data='{{"method":"phone","group_sn":"{sn}","sign":"{sign}"}}'.format(sn=coupon.sn, sign=account.sign),
+                headers={
+                    'Cookie': account.cookies,
+                    'Content-Type': 'text/plain',
+                    'User-Agent': 'mozilla/5.0 (Linux; U; Android 5.1; zh-cn; OPPO R9tm Build/LMY47I) AppleWebKit/537.36 (KHTML, like Gecko)Version/4.0 Chrome/37.0.0.0 MQQBrowser/7.5 Mobile Safari/537.36'
+                })
+            return r.json()
+        except IOError:
+            Timer(self.interval, self.test_coupons).start()
+            raise
 
     def ready(self):
         from app.models import Coupon, Account
         self.Coupon = Coupon
         self.Account = Account
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(self.test_coupons, 'interval', seconds=5)
-        scheduler.start()
+        Timer(self.interval, self.test_coupons).start()
