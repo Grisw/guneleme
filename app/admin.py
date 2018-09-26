@@ -47,10 +47,10 @@ class CouponAdmin(admin.ModelAdmin):
 
         def queryset(self, request, queryset):
             if self.value() == '-2':
-                return queryset.filter(time__lt=datetime.date.today() - datetime.timedelta(days=1))
+                return queryset.filter(create_time__lt=datetime.date.today() - datetime.timedelta(days=1))
             if self.value() == '-1':
-                return queryset.filter(time__gte=datetime.date.today() - datetime.timedelta(days=1), time__lt=datetime.date.today())
+                return queryset.filter(create_time__gte=datetime.date.today() - datetime.timedelta(days=1), create_time__lt=datetime.date.today())
             if self.value() == '0':
-                return queryset.filter(time__gte=datetime.date.today())
+                return queryset.filter(create_time__gte=datetime.date.today())
 
     list_filter = (RemainsFilter, CreateTimeFilter, 'lucky_account', 'lamb_account')
