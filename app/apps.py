@@ -5,6 +5,7 @@ from django.db.models import F, Q
 import random
 import logging
 import datetime
+import threading
 
 logger = logging.getLogger('default')
 
@@ -13,14 +14,18 @@ class AppConfig(AppConfig):
     name = 'app'
     Account = None
     Coupon = None
+    lock = threading.Lock()
 
     def test_coupons(self):
+        self.lock.acquire()
         # Get Available Lambs and Luckys.
         lambs = self.get_lambs()
         if not lambs:
+            self.lock.release()
             return
         luckys = self.get_luckys()
         if not luckys:
+            self.lock.release()
             return
         # Circular iteration, start from 0
         current_lucky = 0
@@ -69,18 +74,19 @@ class AppConfig(AppConfig):
                 if jo['is_lucky']:
                     # If success, update lucky time.
                     lucky.last_lucky_time = datetime.datetime.now()
+                    lucky.save()
+                    coupon.pick_time = lucky.last_lucky_time
                     coupon.lucky_account = lucky
                     coupon.amount = jo['promotion_records'][-1]['amount']
-                    lucky.save()
                     logger.info('Success! sn: {sn}, lucky guy: {lucky}, amount: {amount}'
                                 .format(sn=coupon.sn, lucky=lucky.qq, amount=coupon.amount))
                 else:
                     logger.info('Failed! sn: {sn}'.format(sn=coupon.sn))
                 coupon.current_count = len(jo['promotion_records'])
             else:
-                logger.info('sn: {sn}, remains: {remain}.'
-                            .format(sn=coupon.sn, remain=coupon.lucky_number - coupon.current_count))
+                logger.debug('sn: {sn}, remains: {remain}.'.format(sn=coupon.sn, remain=coupon.lucky_number - coupon.current_count))
             coupon.save()
+        self.lock.release()
 
     def get_lambs(self):
         lambs = self.Account.objects.filter(Q(is_lamb=True) | Q(temp_lamb_until__gt=datetime.datetime.now()))

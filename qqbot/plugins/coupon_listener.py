@@ -45,7 +45,7 @@ def onQQMessage(bot, contact, member, content):
 
     logger.info(f'GET Coupon: {content}')
     try:
-        DCoupon.objects.create(sn=sn, lucky_number=lucky_number, time=datetime.datetime.now())
+        DCoupon.objects.create(sn=sn, lucky_number=lucky_number, create_time=datetime.datetime.now())
     except IntegrityError:
         pass
 

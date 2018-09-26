@@ -11,8 +11,8 @@ class AccountAdmin(admin.ModelAdmin):
 
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):
-    list_display = ('sn', 'lucky_account', 'amount', 'time', 'remains_count')
-    readonly_fields = ('amount', 'time')
+    list_display = ('sn', 'lucky_account', 'amount', 'create_time', 'pick_time', 'remains_count')
+    readonly_fields = ('amount', 'create_time', 'pick_time', 'amount')
     actions = ('delete_old', )
 
     def remains_count(self, obj):

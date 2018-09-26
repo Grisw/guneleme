@@ -21,4 +21,5 @@ class Coupon(models.Model):
     lamb_account = models.ForeignKey(Account, models.SET_NULL, to_field='qq', null=True, blank=True, related_name='lamb')
     lucky_account = models.ForeignKey(Account, models.SET_NULL, to_field='qq', null=True, blank=True, related_name='lucky')
     amount = models.FloatField(default=0)
-    time = models.DateTimeField(default=datetime.datetime.now())
+    create_time = models.DateTimeField(default=datetime.datetime.now())
+    pick_time = models.DateTimeField(null=True)
