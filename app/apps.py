@@ -96,7 +96,7 @@ class AppConfig(AppConfig):
             self.interval = self.MAX_INTERVAL
         else:
             self.interval = interval
-        logger.debug('Interval: {interval}s.')
+        logger.debug('Interval: {interval}s.'.format(interval=self.interval))
         Timer(self.interval, self.test_coupons).start()
 
     def get_lambs(self):
