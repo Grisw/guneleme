@@ -13,9 +13,7 @@ class AppConfig(AppConfig):
     name = 'app'
     Account = None
     Coupon = None
-    interval = 5
-    MIN_INTERVAL = 1
-    MAX_INTERVAL = 10
+    interval = 4
 
     def test_coupons(self):
         # Get Available Lambs and Luckys.
@@ -31,7 +29,6 @@ class AppConfig(AppConfig):
         current_lucky = 0
 
         coupons = self.get_coupons()
-        interval = self.interval
         for coupon in coupons:
             # Choose lamb account.
             if not coupon.lamb_account:
@@ -40,10 +37,7 @@ class AppConfig(AppConfig):
             jo = self.pick_coupon(coupon.lamb_account, coupon)
             if 'promotion_records' not in jo:
                 # IP was ban, retry next time. No need to update coupon.lamb_account.
-                interval += 0.1
                 continue
-            else:
-                interval -= 0.1
 
             coupon.current_count = len(jo['promotion_records'])
             if coupon.lucky_number - coupon.current_count == 1:
@@ -90,13 +84,6 @@ class AppConfig(AppConfig):
             else:
                 logger.debug('sn: {sn}, remains: {remain}.'.format(sn=coupon.sn, remain=coupon.lucky_number - coupon.current_count))
             coupon.save()
-        if interval < self.MIN_INTERVAL:
-            self.interval = self.MIN_INTERVAL
-        elif interval > self.MAX_INTERVAL:
-            self.interval = self.MAX_INTERVAL
-        else:
-            self.interval = interval
-        logger.debug('Interval: {interval}s.'.format(interval=self.interval))
         Timer(self.interval, self.test_coupons).start()
 
     def get_lambs(self):
