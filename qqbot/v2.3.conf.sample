@@ -39,7 +39,7 @@
         "pluginPath" : ".",
 
         # 启动时需加载的插件
-        "plugins" : ["qqbot.plugins.sampleslots", "coupon_listener"],
+        "plugins" : ["coupon_listener"],
 
         # 插件的配置（由用户自定义）
         "pluginsConf" : {},
