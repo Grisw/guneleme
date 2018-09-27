@@ -1,12 +1,4 @@
 {
-
-    # QQBot 的配置文件
-    # 使用 qqbot -u somebody 启动程序时，依次加载：
-    #     根配置 -> 默认配置 -> 用户 somebody 的配置 -> 命令行参数配置
-    # 使用 qqbot 启动程序时，依次加载：
-    #     根配置 -> 默认配置 -> 命令行参数配置
-
-    # 用户 somebody 的配置
     "默认配置" : {
 
         # QQBot-term （HTTP-API） 服务器端口号（该服务器监听 IP 为 127.0.0.1 ）
@@ -44,32 +36,12 @@
         "startAfterFetch" : False,
 
         # 插件目录
-        "pluginPath" : "./plugins",
+        "pluginPath" : ".",
 
         # 启动时需加载的插件
-        "plugins" : ["coupon_listener"],
+        "plugins" : ["qqbot.plugins.sampleslots", "coupon_listener"],
 
         # 插件的配置（由用户自定义）
         "pluginsConf" : {},
-
     },
-
-    # # 注意：根配置是固定的，用户无法修改（在本文件中修改根配置不会生效）
-    # "根配置" : {
-    #     "termServerPort" : 8188,
-    #     "httpServerIP" : "",
-    #     "httpServerPort" : 8189,
-    #     "qq" : "",
-    #     "mailAccount" : "",
-    #     "mailAuthCode" : "",
-    #     "cmdQrcode" : False,
-    #     "debug" : False,
-    #     "restartOnOffline" : False,
-    #     "daemon" : False,
-    #     "startAfterFetch" : False,
-    #     "pluginPath" : "",
-    #     "plugins" : [],
-    #     "pluginsConf" : {}
-    # },
-
 }

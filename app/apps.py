@@ -115,9 +115,9 @@ class AppConfig(AppConfig):
                     'User-Agent': 'mozilla/5.0 (Linux; U; Android 5.1; zh-cn; OPPO R9tm Build/LMY47I) AppleWebKit/537.36 (KHTML, like Gecko)Version/4.0 Chrome/37.0.0.0 MQQBrowser/7.5 Mobile Safari/537.36'
                 })
             return r.json()
-        except IOError:
-            Timer(self.interval, self.test_coupons).start()
-            raise
+        except IOError as e:
+            logger.error(e.args)
+            return {}
 
     def ready(self):
         from app.models import Coupon, Account
