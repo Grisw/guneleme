@@ -50,6 +50,11 @@ def onQQMessage(bot, contact, member, content):
         pass
 
 
+def onExit(bot, code, reason, error):
+    logger.info(f'Restarting for: {code}/{reason}/{error}')
+    bot.FreshRestart()
+
+
 def resume_url_cn(url):
     r = requests.get(url, allow_redirects=False)
     return r.headers['Location']
