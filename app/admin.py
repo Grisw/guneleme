@@ -7,7 +7,6 @@ from django.db.models import F
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
     list_display = ('qq', 'is_lamb', 'last_lucky_time', 'temp_lamb_until')
-    readonly_fields = ('last_lucky_time', 'temp_lamb_until')
 
 
 @admin.register(Coupon)
