@@ -54,11 +54,16 @@ class AppConfig(AppConfig):
                 # If this account is full, turn to next account in luckys, until all luckys are iterated.
                 _current_lucky = current_lucky - 1
                 while 'is_lucky' not in jo and _current_lucky != current_lucky:
-                    # This account is full, set it as temp lamb until next day.
-                    lucky.temp_lamb_until = datetime.date.today() + datetime.timedelta(days=1)
-                    lucky.save()
-                    logger.info('Full! lucky guy: {lucky}, change it to lamb until: {temp_lamb_until}'
-                                .format(lucky=lucky.qq, temp_lamb_until=lucky.temp_lamb_until))
+                    if _current_lucky == -1:
+                        import json
+                        logger.debug(json.dumps(jo))
+                        break
+                    if jo:
+                        # This account is full, set it as temp lamb until next day.
+                        lucky.temp_lamb_until = datetime.date.today() + datetime.timedelta(days=1)
+                        lucky.save()
+                        logger.info('Full! lucky guy: {lucky}, change it to lamb until: {temp_lamb_until}'
+                                    .format(lucky=lucky.qq, temp_lamb_until=lucky.temp_lamb_until))
                     # Turn to next account.
                     lucky = luckys[current_lucky]
                     current_lucky = (current_lucky + 1) % len(luckys)
