@@ -8,7 +8,7 @@ def main():
     while True:
         p = os.popen('proxychains qqbot -b /app/qqbot', 'r', 1)
         while True:
-            s = p.readline().decode()
+            s = p.readline()
             if not s:
                 break
             print(s)
