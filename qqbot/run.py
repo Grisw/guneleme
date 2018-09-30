@@ -1,15 +1,16 @@
 import os
 import time
-import subprocess
 
 
 def main():
     os.system('sslocal -c /etc/ss.json &')
     time.sleep(3)
     while True:
-        p = subprocess.Popen(['proxychains', 'qqbot', '-b', '/app/qqbot'], stdout=subprocess.STDOUT, stderr=subprocess.PIPE)
-        while p.poll() is None:
-            s = p.stderr.readline().decode()
+        p = os.popen('proxychains qqbot -b /app/qqbot', 'r', 0)
+        while True:
+            s = p.readline().decode()
+            if not s:
+                break
             print(s)
             if s == '&&RESTART@@':
                 break
