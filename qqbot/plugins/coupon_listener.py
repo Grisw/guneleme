@@ -6,7 +6,6 @@ import sys
 from django.db import IntegrityError
 import logging
 import datetime
-from threading import Timer
 
 logger = logging.getLogger('default')
 DCoupon = None
@@ -20,16 +19,15 @@ def onInit(bot):
     from app.models import Coupon
     global DCoupon
     DCoupon = Coupon
-    Timer(1, flush).start()
 
 
 def flush():
     sys.stdout.flush()
     sys.stderr.flush()
-    Timer(1, flush).start()
 
 
 def onQQMessage(bot, contact, member, content):
+    flush()
     if content.startswith('https://url.cn/'):
         content = resume_url_cn(content)
 
@@ -56,11 +54,13 @@ def onQQMessage(bot, contact, member, content):
         DCoupon.objects.create(sn=sn, lucky_number=lucky_number, create_time=datetime.datetime.now())
     except IntegrityError:
         pass
+    flush()
 
 
 def onExit(bot, code, reason, error):
     logger.info(f'Restarting for: {code}/{reason}/{error}')
     print('&&RESTART@@')
+    flush()
 
 
 def resume_url_cn(url):
