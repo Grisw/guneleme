@@ -6,7 +6,7 @@ def main():
     os.system('sslocal -c /etc/ss.json &')
     time.sleep(3)
     while True:
-        p = os.popen('proxychains qqbot -b /app/qqbot', 'r', 0)
+        p = os.popen('proxychains qqbot -b /app/qqbot', 'r', 1)
         while True:
             s = p.readline().decode()
             if not s:
