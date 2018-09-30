@@ -7,8 +7,8 @@ def main():
     os.system('sslocal -c /etc/ss.json &')
     time.sleep(3)
     while True:
-        p = subprocess.Popen(['proxychains', 'qqbot', '-b', '/app/qqbot'], stdout=subprocess.PIPE)
-        while p.stdout.readable():
+        p = subprocess.Popen(['proxychains', 'qqbot', '-b', '/app/qqbot'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        while p.poll() is None:
             s = p.stdout.readline()
             print(s)
             if s == '&&RESTART@@':
