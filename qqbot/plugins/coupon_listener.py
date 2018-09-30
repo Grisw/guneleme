@@ -48,6 +48,7 @@ def onQQMessage(bot, contact, member, content):
         DCoupon.objects.create(sn=sn, lucky_number=lucky_number, create_time=datetime.datetime.now())
     except IntegrityError:
         pass
+    sys.stdout.flush()
 
 
 def onExit(bot, code, reason, error):

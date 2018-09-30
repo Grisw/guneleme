@@ -9,7 +9,7 @@ def main():
     while True:
         p = subprocess.Popen(['proxychains', 'qqbot', '-b', '/app/qqbot'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         while p.poll() is None:
-            s = p.stdout.readline()
+            s = p.stdout.readline().decode()
             print(s)
             if s == '&&RESTART@@':
                 break
