@@ -12,7 +12,7 @@ class AccountAdmin(admin.ModelAdmin):
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):
     list_display = ('sn', 'lucky_number', 'current_count', 'lucky_account', 'amount', 'create_time', 'pick_time')
-    readonly_fields = ('amount', 'create_time', 'pick_time')
+    readonly_fields = ('amount', 'pick_time')
 
     class RemainsFilter(admin.SimpleListFilter):
         title = 'Remains Count'

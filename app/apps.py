@@ -52,8 +52,8 @@ class AppConfig(AppConfig):
                 jo = self.pick_coupon(lucky, coupon)
 
                 # If this account is full, turn to next account in luckys, until all luckys are iterated.
-                _current_lucky = len(luckys) - 1 if current_lucky - 1 < 0 else current_lucky - 1
-                while 'is_lucky' not in jo and _current_lucky != current_lucky:
+                _current_lucky = 0
+                while 'is_lucky' not in jo and _current_lucky < len(luckys):
                     if jo:
                         # This account is full, set it as temp lamb until next day.
                         lucky.temp_lamb_until = datetime.date.today() + datetime.timedelta(days=1)
@@ -64,6 +64,7 @@ class AppConfig(AppConfig):
                     lucky = luckys[current_lucky]
                     current_lucky = (current_lucky + 1) % len(luckys)
                     jo = self.pick_coupon(lucky, coupon)
+                    _current_lucky += 1
                 if 'is_lucky' not in jo:
                     # All account in luckys are full, save coupon status immediately.
                     coupon.current_count = len(jo['promotion_records'])
