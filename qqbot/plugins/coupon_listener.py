@@ -52,8 +52,7 @@ def onQQMessage(bot, contact, member, content):
 
 def onExit(bot, code, reason, error):
     logger.info(f'Restarting for: {code}/{reason}/{error}')
-    sys.stderr.write('\n&&RESTART@@\n')
-    sys.stderr.flush()
+    print('\n&&RESTART@@\n')
 
 
 def resume_url_cn(url):
