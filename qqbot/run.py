@@ -6,15 +6,7 @@ def main():
     os.system('sslocal -c /etc/ss.json &')
     time.sleep(3)
     while True:
-        p = os.popen('proxychains qqbot -b /app/qqbot', 'r', 1)
-        while True:
-            s = p.readline()
-            if not s:
-                break
-            print(s)
-            if s == '&&RESTART@@':
-                break
-        p.kill()
+        os.system('proxychains qqbot -b /app/qqbot')
 
 
 if __name__ == '__main__':
