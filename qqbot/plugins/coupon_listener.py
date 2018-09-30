@@ -21,13 +21,7 @@ def onInit(bot):
     DCoupon = Coupon
 
 
-def flush():
-    sys.stdout.flush()
-    sys.stderr.flush()
-
-
 def onQQMessage(bot, contact, member, content):
-    flush()
     if content.startswith('https://url.cn/'):
         content = resume_url_cn(content)
 
@@ -54,13 +48,12 @@ def onQQMessage(bot, contact, member, content):
         DCoupon.objects.create(sn=sn, lucky_number=lucky_number, create_time=datetime.datetime.now())
     except IntegrityError:
         pass
-    flush()
 
 
 def onExit(bot, code, reason, error):
     logger.info(f'Restarting for: {code}/{reason}/{error}')
-    print('&&RESTART@@')
-    flush()
+    sys.stderr.write('\n&&RESTART@@\n')
+    sys.stderr.flush()
 
 
 def resume_url_cn(url):
