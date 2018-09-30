@@ -52,7 +52,7 @@ def onQQMessage(bot, contact, member, content):
 
 def onExit(bot, code, reason, error):
     logger.info(f'Restarting for: {code}/{reason}/{error}')
-    bot.FreshRestart()
+    print('&&RESTART@@')
 
 
 def resume_url_cn(url):
